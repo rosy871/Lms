@@ -22,8 +22,8 @@ namespace Lms.Api
             {
                 var services = scope.ServiceProvider;
                 var context = services.GetRequiredService<LmsApiContext>();
-                context.Database.EnsureDeleted();
-                context.Database.Migrate();
+                //context.Database.EnsureDeleted();
+                //context.Database.Migrate();
                 try
                 {
                     SeedData.InitAsync(services,context).Wait();
