@@ -1,5 +1,7 @@
 ﻿using Lms.Core.Entities;
 using Lms.Core.Reporitories;
+using Lms.Data.Data;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,39 +12,52 @@ namespace Lms.Data.Repositories
 {
     public class CourseRepository : ICourseRepository
     {
+        private LmsApiContext db;
+
+        public CourseRepository(LmsApiContext context)
+        {
+            db = context;
+        }
+
         public void Add(Course course)
         {
-            throw new NotImplementedException();
+            db.Add(course);
         }
 
-        public Task<bool> AnyAsync(int? id)
+        public async Task<bool> AnyAsync(int? id)
         {
-            throw new NotImplementedException();
+            return await db.Course.AnyAsync(c => c.Id == id);
+        }
+        public bool Any(int id)
+        {
+            return db.Course.Any(e => e.Id == id);
         }
 
-        public Task<Course> FindAsync(int? id)
+        public async Task<Course> FindAsync(int? id)
         {
-            throw new NotImplementedException();
+            return await db.Course.FindAsync(id);
         }
 
-        public Task<IEnumerable<Course>> GetAllCourses()
+        public async Task<IEnumerable<Course>> GetAllCourses()
         {
-            throw new NotImplementedException();
+            return await db.Course.ToListAsync();
         }
 
-        public Task<Course> GetCourse(int? id)
+        public async Task<Course> GetCourse(int? id)
         {
-            throw new NotImplementedException();
+            return await db.Course.FirstOrDefaultAsync(m => m.Id == id);
         }
 
         public void Remove(Course course)
         {
-            throw new NotImplementedException();
+            db.Course.Remove(course);
         }
 
         public void Update(Course course)
         {
-            throw new NotImplementedException();
+            db.Update(course);
         }
+
+      
     }
 }

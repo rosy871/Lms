@@ -13,6 +13,7 @@ namespace Lms.Core.Reporitories
         Task<Course> GetCourse(int? id);
         Task<Course> FindAsync(int? id);
         Task<bool> AnyAsync(int? id);
+        bool Any(int id);
         void Add(Course course);
         void Update(Course course);
         void Remove(Course course);

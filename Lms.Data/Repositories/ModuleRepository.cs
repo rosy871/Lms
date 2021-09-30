@@ -1,5 +1,7 @@
 ﻿using Lms.Core.Entities;
 using Lms.Core.Reporitories;
+using Lms.Data.Data;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,39 +12,46 @@ namespace Lms.Data.Repositories
 {
     public class ModuleRepository : IModuleRepository
     {
-        public void Add(Module Module)
+        private LmsApiContext db;
+
+        public ModuleRepository(LmsApiContext context)
         {
-            throw new NotImplementedException();
+           db = context;
         }
 
-        public Task<bool> AnyAsync(int? id)
+        public void Add(Module module)
         {
-            throw new NotImplementedException();
+            db.Add(module);
         }
 
-        public Task<Module> FindAsync(int? id)
+        public async Task<bool> AnyAsync(int? id)
         {
-            throw new NotImplementedException();
+            return await db.Module.AnyAsync(m => m.Id == id);
         }
 
-        public Task<IEnumerable<Module>> GetAllCourses()
+        public async Task<Module> FindAsync(int? id)
         {
-            throw new NotImplementedException();
+            return await db.Module.FindAsync(id);
         }
 
-        public Task<Module> GetCourse(int? id)
+        public async Task<IEnumerable<Module>> GetAllModules()
         {
-            throw new NotImplementedException();
+            return await db.Module.ToListAsync();
         }
 
-        public void Remove(Module Module)
+        public async Task<Module> GetModule(int? id)
         {
-            throw new NotImplementedException();
+            return await db.Module.FirstOrDefaultAsync(m => m.Id == id);
         }
 
-        public void Update(Module Module)
+        public void Remove(Module module)
         {
-            throw new NotImplementedException();
+            db.Module.Remove(module);
+        }
+
+        public void Update(Module module)
+        {
+            db.Update(module);
         }
     }
 }

@@ -7,102 +7,98 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Lms.Data.Data;
 using Lms.Core.Entities;
+using Lms.Core.Reporitories;
 
 namespace Lms.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Modules")]
     [ApiController]
     public class ModulesController : ControllerBase
     {
         private readonly LmsApiContext _context;
+        private readonly IUoW uow;
 
-        public ModulesController(LmsApiContext context)
+        public ModulesController(LmsApiContext context, IUoW uow)
         {
             _context = context;
+            this.uow = uow;
         }
 
         // GET: api/Modules
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Module>>> GetModule()
         {
-            return await _context.Module.ToListAsync();
+            var modules = await uow.ModuleRepository.GetAllModules();
+            return Ok(modules);
         }
 
         // GET: api/Modules/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Module>> GetModule(int id)
         {
-            var @module = await _context.Module.FindAsync(id);
+            var modul = await uow.ModuleRepository.GetModule(id);
 
-            if (@module == null)
+            if (modul == null)
             {
                 return NotFound();
             }
 
-            return @module;
+            return Ok(modul);
         }
 
         // PUT: api/Modules/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutModule(int id, Module @module)
+        public async Task<IActionResult> PutModule(int id, Module modul)
         {
-            if (id != @module.Id)
+            if (id != modul.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(@module).State = EntityState.Modified;
+           
+            if(!uow.ModuleRepository.AnyAsync(id).Result)
+            { return NotFound(); }
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ModuleExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            uow.ModuleRepository.Update(modul);
+            await uow.CompleteAsync();
+            return CreatedAtAction("GetModule", new { id = modul.Id }, modul);
+           
 
-            return NoContent();
+           
         }
 
         // POST: api/Modules
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Module>> PostModule(Module @module)
+        public async Task<ActionResult<Module>> PostModule(Module modul)
         {
-            _context.Module.Add(@module);
-            await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetModule", new { id = @module.Id }, @module);
+            uow.ModuleRepository.Add(modul);
+            await uow.CompleteAsync();
+            return CreatedAtAction("GetModule", new { id = modul.Id }, modul);
         }
 
         // DELETE: api/Modules/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteModule(int id)
         {
-            var @module = await _context.Module.FindAsync(id);
-            if (@module == null)
+            var modul = await uow.ModuleRepository.FindAsync(id);
+            if (modul == null)
             {
                 return NotFound();
             }
 
-            _context.Module.Remove(@module);
-            await _context.SaveChangesAsync();
+            uow.ModuleRepository.Remove(modul);
+            await uow.CompleteAsync();
 
             return NoContent();
         }
 
-        private bool ModuleExists(int id)
+        private Task<bool> ModuleExists(int id)
         {
-            return _context.Module.Any(e => e.Id == id);
+            // return _context.Module.Any(e => e.Id == id);
+            return uow.ModuleRepository.AnyAsync(id);
         }
     }
 }
