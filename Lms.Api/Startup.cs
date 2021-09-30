@@ -43,6 +43,7 @@ namespace Lms.Api
                     options.UseSqlServer(Configuration.GetConnectionString("LmsApiContext")));
 
             services.AddScoped<IUoW, UoW>();
+            services.AddAutoMapper(typeof(MapperProfile));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
