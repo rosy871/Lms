@@ -58,6 +58,9 @@ namespace Lms.Data.Repositories
             db.Update(course);
         }
 
-      
+        public async Task<Course> GetAsync(string title)
+        {
+            return await db.Course.FirstOrDefaultAsync(m => m.Title == title);
+        }
     }
 }

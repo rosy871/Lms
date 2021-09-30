@@ -11,5 +11,6 @@ namespace Lms.Core.Reporitories
         ICourseRepository CourseRepository { get; }
         IModuleRepository ModuleRepository { get; }
         Task CompleteAsync();
+        Task<bool> CompleteAsyncCheck();
     }
 }

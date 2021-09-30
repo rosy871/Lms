@@ -28,5 +28,10 @@ namespace Lms.Data.Repositories
         {
             await db.SaveChangesAsync();
         }
+
+        public async Task<bool> CompleteAsyncCheck()
+        {
+            return (await db.SaveChangesAsync()) >= 0;
+        }
     }
 }

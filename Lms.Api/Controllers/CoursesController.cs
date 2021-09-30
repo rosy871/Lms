@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using Lms.Data.Data;
 using Lms.Core.Entities;
 using Lms.Core.Reporitories;
+using AutoMapper;
+using Lms.Core.Dto;
 
 namespace Lms.Api.Controllers
 {
@@ -15,12 +17,12 @@ namespace Lms.Api.Controllers
     [ApiController]
     public class CoursesController : ControllerBase
     {
-        private readonly LmsApiContext _context;
+        private readonly IMapper mapper;
         private readonly IUoW uow;
 
-        public CoursesController(IUoW uow, LmsApiContext context)
+        public CoursesController(IUoW uow, IMapper mapper)
         {
-            _context = context;
+            this.mapper = mapper;
             this.uow = uow;
         }
 
@@ -29,7 +31,8 @@ namespace Lms.Api.Controllers
         public async Task<ActionResult<IEnumerable<Course>>> GetCourse()
         {
             var courses = await uow.CourseRepository.GetAllCourses();
-            return Ok(courses);
+            var courseDto = mapper.Map<IEnumerable<CourseDto>>(courses);
+            return Ok(courseDto);
         }
 
         // GET: api/Courses/5
@@ -42,8 +45,9 @@ namespace Lms.Api.Controllers
             {
                 return NotFound();
             }
+            var dto = mapper.Map<CourseDto>(course);
 
-            return course;
+            return Ok(dto);
         }
 
         // PUT: api/Courses/5
@@ -78,20 +82,29 @@ namespace Lms.Api.Controllers
         //    return NoContent();
         //}
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCourse(int id, Course course)
+        public async Task<IActionResult> PutCourse(int id,CourseDto coursedto)
         {
-            if (id != course.Id)
+            if (id != coursedto.Id)
             {
                 return BadRequest();
             }
+            var course = await uow.CourseRepository.GetCourse(id);
+            if (course==null)
+            {
+                //return NotFound(); 
+                //same meaning diff way
+               return StatusCode(StatusCodes.Status404NotFound);
+            }
 
-            if (!uow.CourseRepository.Any(id))
-            { return NotFound(); }
-
-            uow.CourseRepository.Update(course);
-            await uow.CompleteAsync();
-            return CreatedAtAction("GetCourse", new { id = course.Id }, course);
-
+            mapper.Map(coursedto, course);
+           
+            if (!await uow.CompleteAsyncCheck())
+            {
+                //code for not able to save in db
+                return StatusCode(500);
+            }
+            var dto = mapper.Map<CourseDto>(course);
+            return Ok(dto);
         }
 
 
@@ -99,13 +112,30 @@ namespace Lms.Api.Controllers
         // POST: api/Courses
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Course>> PostCourse(Course course)
+        public async Task<ActionResult<Course>> PostCourse(CourseDto coursedto)
         {
-           // _context.Course.Add(course);
-            //await _context.SaveChangesAsync();
+
+            //uow.CourseRepository.Add(course);
+            //await uow.CompleteAsync();
+            //return CreatedAtAction("GetCourse", new { id = course.Id }, course);
+            if (await uow.CourseRepository.GetAsync(coursedto.Title) != null)
+            {
+                ModelState.AddModelError("Title", "Course Title already exists");
+                return BadRequest(ModelState);
+            }
+            var course=mapper.Map<Course>(coursedto);
             uow.CourseRepository.Add(course);
-            await uow.CompleteAsync();
-            return CreatedAtAction("GetCourse", new { id = course.Id }, course);
+
+            if (!await uow.CompleteAsyncCheck())
+            {
+                //return StatusCode(500);
+                //or
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+            var addedcourse = mapper.Map<CourseDto>(course);
+            return CreatedAtAction(nameof(GetCourse), new { id = addedcourse.Id }, course);
+           
+
         }
 
         // DELETE: api/Courses/5
