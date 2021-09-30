@@ -39,6 +39,12 @@ namespace Lms.Data.Repositories
             return await db.Module.ToListAsync();
         }
 
+        public async Task<Module> GetAsync(string title, int courseId)
+        {
+            var model = await db.Module.FirstOrDefaultAsync(m=>m.Title==title && m.CourseId==courseId);
+            return model;
+        }
+
         public async Task<Module> GetModule(int? id)
         {
             return await db.Module.FirstOrDefaultAsync(m => m.Id == id);

@@ -16,5 +16,6 @@ namespace Lms.Core.Reporitories
         void Add(Module Module);
         void Update(Module Module);
         void Remove(Module Module);
+        Task<Module> GetAsync(string title, int courseId);
     }
 }
