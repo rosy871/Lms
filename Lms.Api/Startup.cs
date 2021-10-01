@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Lms.Data.Data;
 using Lms.Data.Repositories;
 using Lms.Core.Reporitories;
+using Newtonsoft.Json.Serialization;
 
 namespace Lms.Api
 {
@@ -32,7 +33,9 @@ namespace Lms.Api
         {
 
             services.AddControllers(opt=>opt.ReturnHttpNotAcceptable=true)
-                    .AddNewtonsoftJson()
+                    .AddNewtonsoftJson(setupAction=> {
+                        setupAction.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                    })
                     .AddXmlDataContractSerializerFormatters();
             services.AddSwaggerGen(c =>
             {
