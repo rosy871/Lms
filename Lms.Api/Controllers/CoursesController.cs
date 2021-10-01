@@ -10,6 +10,7 @@ using Lms.Core.Entities;
 using Lms.Core.Reporitories;
 using AutoMapper;
 using Lms.Core.Dto;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace Lms.Api.Controllers
 {
@@ -152,6 +153,33 @@ namespace Lms.Api.Controllers
             await uow.CompleteAsync();
 
             return NoContent();
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<ActionResult<CourseDto>> PacthCourse(int id, JsonPatchDocument<CourseDto> patchDocument)
+        {
+            var course = await uow.CourseRepository.FindAsync(id);
+            if (course == null)
+            {
+                return NotFound();
+            }
+            var dto = mapper.Map<CourseDto>(course);
+
+            patchDocument.ApplyTo(dto, ModelState);
+            //validate
+            if (!TryValidateModel(dto))
+            { return BadRequest(ModelState); }
+
+            mapper.Map(dto, course);
+
+            if (!await uow.CompleteAsyncCheck())
+            {
+                return StatusCode(500);
+
+            }
+            var patchedmodul = mapper.Map<CourseDto>(course);
+            return Ok(patchedmodul);
+
         }
 
         private bool CourseExists(int id)
