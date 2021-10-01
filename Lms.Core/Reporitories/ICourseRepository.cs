@@ -9,7 +9,9 @@ namespace Lms.Core.Reporitories
 {
     public interface ICourseRepository
     {
+        Task<IEnumerable<Course>> GetAllCourses(bool includemodules);
         Task<IEnumerable<Course>> GetAllCourses();
+        Task<Course> GetCourse(int? id,bool includemodules);
         Task<Course> GetCourse(int? id);
         Task<Course> FindAsync(int? id);
         Task<bool> AnyAsync(int? id);

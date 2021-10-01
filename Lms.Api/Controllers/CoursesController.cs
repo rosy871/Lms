@@ -28,19 +28,26 @@ namespace Lms.Api.Controllers
         }
 
         // GET: api/Courses
+        //[HttpGet]
+        //public async Task<ActionResult<IEnumerable<Course>>> GetCourse()
+        //{
+        //    var courses = await uow.CourseRepository.GetAllCourses();
+        //    var courseDto = mapper.Map<IEnumerable<CourseDto>>(courses);
+        //    return Ok(courseDto);
+        //} 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Course>>> GetCourse()
+        public async Task<ActionResult<IEnumerable<Course>>> GetCourse(bool includemodules)
         {
-            var courses = await uow.CourseRepository.GetAllCourses();
+            var courses = await uow.CourseRepository.GetAllCourses(includemodules);
             var courseDto = mapper.Map<IEnumerable<CourseDto>>(courses);
             return Ok(courseDto);
         }
 
         // GET: api/Courses/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Course>> GetCourse(int id)
+        public async Task<ActionResult<Course>> GetCourse(int id,bool includemodule)
         {
-            var course = await uow.CourseRepository.GetCourse(id);
+            var course = await uow.CourseRepository.GetCourse(id,includemodule);
 
             if (course == null)
             {

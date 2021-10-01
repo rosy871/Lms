@@ -16,6 +16,7 @@ using Lms.Data.Data;
 using Lms.Data.Repositories;
 using Lms.Core.Reporitories;
 using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Lms.Api
 {
@@ -32,11 +33,15 @@ namespace Lms.Api
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddControllers(opt=>opt.ReturnHttpNotAcceptable=true)
-                    .AddNewtonsoftJson(setupAction=> {
-                        setupAction.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                    })
+            services.AddControllers(opt => opt.ReturnHttpNotAcceptable = true)
+                     .AddNewtonsoftJson( setupAction => {
+                         setupAction.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;//for ingnoring json self loop exception
+                   //    setupAction.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                     })
+                   
+
                     .AddXmlDataContractSerializerFormatters();
+                    
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Lms.Api", Version = "v1" });

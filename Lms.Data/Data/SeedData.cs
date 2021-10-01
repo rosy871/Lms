@@ -25,46 +25,69 @@ namespace Lms.Data.Data
             var courses = GetCourses();
             await db.AddRangeAsync(courses);
 
-            var modules = GetModules(courses);
-            await db.AddRangeAsync(modules);
+            //var modules = GetModules(courses);
+            //await db.AddRangeAsync(modules);
 
             await db.SaveChangesAsync();
 
         }
 
-        private static IEnumerable<Module> GetModules(IEnumerable<Course> courses)
-        {
-            var modules = new List<Module>();
+        //private static IEnumerable<Module> GetModules(IEnumerable<Course> courses)
+        //{
+        //    var modules = new List<Module>();
 
-            foreach (var course in courses)
-            {
-                var randomnum = faker.Random.Int(2, 6);
-                for(int i=0;i<randomnum;i++)
-                {
-                    var module = new Module
-                    {
-                        Course = course,
-                        Title = faker.Company.CatchPhrase(),
-                        StartDate = course.StartDate.AddDays(faker.Random.Int(0, 30))
+        //    foreach (var course in courses)
+        //    {
+        //        var randomnum = faker.Random.Int(2, 6);
+        //        for(int i=0;i<randomnum;i++)
+        //        {
+        //            var module = new Module
+        //            {
+        //                Course = course,
+        //                Title = faker.Company.CatchPhrase(),
+        //                StartDate = course.StartDate.AddDays(faker.Random.Int(0, 30))
 
-                    };
-                    modules.Add(module);
-                }
+        //            };
+        //            modules.Add(module);
+        //        }
 
 
-            }
-            return modules;
-        }
+        //    }
+        //    return modules;
+        //}
 
         private static IEnumerable<Course> GetCourses()
         {
             var courses = new List<Course>();
             for(int i=0; i<20;i++)
             {
+                DateTime coursedate = DateTime.Now.AddDays(faker.Random.Int(-10, 30));
+               
                 var course = new Course
                 {
+
                     Title = faker.Company.CatchPhrase(),
-                    StartDate = DateTime.Now.AddDays(faker.Random.Int(-10, 30))
+                    StartDate = coursedate,
+                    Modules = new Module[]
+                    {
+                            new Module
+                            {
+                             Title=faker.Company.CatchPhrase(),
+                             StartDate = coursedate,
+                             
+                            },
+                            new Module
+                            {
+                             Title=faker.Company.CatchPhrase(),
+                             StartDate = coursedate.AddMonths(1),
+                             
+                            },new Module
+                            {
+                             Title=faker.Company.CatchPhrase(),
+                             StartDate = coursedate.AddMonths(2),
+                             
+                            }
+                    }
                 };
                 courses.Add(course);
             }

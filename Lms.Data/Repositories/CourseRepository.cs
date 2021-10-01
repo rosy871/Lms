@@ -38,10 +38,12 @@ namespace Lms.Data.Repositories
             return await db.Course.FindAsync(id);
         }
 
-        public async Task<IEnumerable<Course>> GetAllCourses()
+        public async Task<IEnumerable<Course>> GetAllCourses(bool includemodules)
         {
-            return await db.Course.ToListAsync();
+            return includemodules?
+                await db.Course.Include(c => c.Modules).ToListAsync():await db.Course.ToListAsync();
         }
+        public async Task<IEnumerable<Course>> GetAllCourses() => await db.Course.ToListAsync();
 
         public async Task<Course> GetCourse(int? id)
         {
@@ -61,6 +63,17 @@ namespace Lms.Data.Repositories
         public async Task<Course> GetAsync(string title)
         {
             return await db.Course.FirstOrDefaultAsync(m => m.Title == title);
+        }
+
+       
+
+        public async Task<Course> GetCourse(int? id, bool includemodules)
+        {
+            var query = db.Course.AsQueryable();
+            if (includemodules)
+                query = query.Include(c => c.Modules);
+
+            return await query.FirstOrDefaultAsync(c => c.Id == id);
         }
     }
 }
